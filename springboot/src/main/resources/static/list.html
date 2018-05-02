@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="lib/h-ui/css/H-ui.min.css">
+    <link rel="stylesheet" href="lib/layui/css/layui.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+<body>
+
+
+<div class="layui-container">
+
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>题目一览</legend>
+    </fieldset>
+
+    <form class="layui-form">
+        <div class="layui-form-item text-center" style="height: 30px">
+            <!-- 类别 -->
+            <div class="layui-inline">
+                <label class="layui-form-label" style="display: none">类型：</label>
+                <div class="layui-input-inline text-left">
+                    <select id="categoryId">
+                        <option value="">请选择类别...</option>
+                    </select>
+                </div>
+            </div>
+            <!-- 类别 -->
+            <!-- 题目 -->
+            <div class="layui-inline">
+                <label class="layui-form-label" style="display: none">题目：</label>
+                <div class="layui-input-inline">
+                    <input type="text" placeholder="请输入关键字..." class="layui-input" id="name">
+                </div>
+            </div>
+            <!-- 题目 -->
+            <!-- 提交按钮 -->
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <button type="reset" class="layui-btn" style="margin-bottom: 4px"
+                            onclick="queryQuestion($('#name').val(),$('#categoryId').val())">查询
+                    </button>
+                </div>
+            </div>
+            <!-- 提交按钮 -->
+        </div>
+    </form>
+    <div class="layui-form">
+        <table class="layui-table" id="table">
+            <colgroup>
+                <col width="30">
+                <col width="500">
+                <col width="100">
+                <col width="50">
+            </colgroup>
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>题目</th>
+                <th>类别</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="layui-footer text-center mt-5">
+    Copyright &copy;2018-2028 <a style="color: cornflowerblue" href="https://github.com/zhengvipin">https://github.com/zhengvipin</a>
+    All Rights Reserved.
+</div>
+<script src="js/jquery.2.1.4.min.js"></script>
+<script src="lib/layui/layui.js"></script>
+<script src="lib/datatables/js/jquery.dataTables.min.js"></script>
+<script>
+    $(window).on('load', () => {
+        // 加载类别
+        queryCategory();
+        // 加载表格数据
+        queryQuestion("", null);
+    });
+
+    function queryCategory() {
+        $.ajax({
+            type: 'get',
+            url: '/category/findAll.action',
+            dataType: 'json',
+            success: (data) => {
+                let text = ``;
+                $.each(data, (i, item) => {
+                    text += `
+                        <option value="${item.id}">${item.title}</option>
+                    `
+                });
+                $('select').append(text);
+            }
+        })
+    }
+
+    function queryQuestion(name, categoryId) {
+        $.ajax({
+            type: 'post',
+            url: '/question/findAll.action',
+            data: {name: name, categoryId: categoryId},
+            dataType: 'json',
+            success: (data) => {
+                console.log(data);
+                let tbody = $('tbody');
+                tbody.empty();
+                if (data.length === 0) {
+                    tbody.append(`<tr><th class="text-center c-red" colspan="3">查无数据！</th></tr>`);
+                    return;
+                }
+                let text = ``;
+                $.each(data, (i, item) => {
+                    text += `
+                        <tr id="${item.id}">
+                            <td>${i + 1}</td>
+                            <td>${item.name}</td>
+                            <td>${item.category.title}</td>
+                            <td>
+                                <button class="layui-btn layui-btn-normal layui-btn-radius layui-btn-xs"
+                                onclick="location.href='question.html?toPage=${i + 1}'">查看</button>
+                                <button class="layui-btn layui-btn-danger layui-btn-radius layui-btn-xs"
+                                onclick="removeQuestion(${item.id},${i + 1})">删除</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.append(text);
+
+                // 分页
+                $("#table").DataTable({
+                    pageLength: 10, // 首次加载的数据条数
+                    sDom: '<"#oDiv"<"clear">>t<"bottom"ip<"clear">>',
+                    language: {
+                        url: "lib/datatables/js/zh_CN.txt"
+                    },
+                    retrieve: true
+                });
+
+                formRender();
+            }
+        })
+    }
+
+    function removeQuestion(id, page) {
+        let index = layer.confirm('确认要删除问题：' + page + '么？', () => {
+            $.ajax({
+                type: 'get',
+                url: '/question/remove.action?id=' + id,
+                dataType: 'json',
+                success: () => {
+                    layer.msg("删除成功!", {icon: 1, time: 1000});
+
+                    setTimeout(() => {
+                        queryQuestion("", null);
+                    }, 800)
+                }
+            })
+        })
+    }
+
+    function formRender() {
+        layui.use('form', function () {
+            let form = layui.form;
+            form.render();
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>面试宝典</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="lib/layui/css/layui.css">
+    <link rel="stylesheet" href="lib/hui-iconfont/1.0.8/iconfont.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- 隐藏表单 -->
+    <input type="hidden" id="id">
+    <input type="hidden" id="description">
+    <input type="hidden" id="remark">
+    <!-- 元信息 -->
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>
+            <span class="float-left" style="cursor: pointer" id="title"
+                  onmouseover="showDescription($('#description').val(),this,4,'green')"></span>
+            <span class="float-right mr-5">
+                共<span style="color: #0f9ae0" id="count"></span>题/
+                <label>第&nbsp;&nbsp;<input style="color: red;width: 60px;text-align: center" id="page"
+                                           onblur="toSub()"/>&nbsp;&nbsp;题</label>
+            </span>
+        </legend>
+    </fieldset>
+    <!-- 元信息 -->
+    <form class="layui-form layui-form-pane" id="form">
+        <!-- 题目 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label" for="name">题目</label>
+            <div class="layui-input-block">
+                <input type="text" class="layui-input font-weight-bold"
+                       style="overflow:hidden;white-space:nowrap;text-overflow: ellipsis;cursor: pointer;font-size: 16px"
+                       id="name" onclick="showDescription($('#name').val(),this,2,'orange')" readonly/>
+            </div>
+        </div>
+        <!-- 题目 -->
+        <!-- 参考答案 -->
+        <div class="layui-form-item layui-form-text">
+            <label for="answer" class="layui-form-label">参考答案
+                <!-- 编辑 -->
+                <i class="Hui-iconfont float-right" style="color: crimson;padding: 0 5px" onclick="editAnswer()"
+                   id="edit">&#xe6df;</i>
+                <!-- 编辑 -->
+                <!-- 取消 -->
+                <i class="Hui-iconfont float-right" style="color: black;display: none;padding: 0 5px" id="quit"
+                   onclick="document.location.reload()">&#xe6a6;</i>
+                <!-- 取消 -->
+                <!-- 保存 -->
+                <i class="Hui-iconfont float-right" style="color: firebrick;display: none;padding: 0 5px" id="save">&#xe632;</i>
+                <!-- 保存 -->
+            </label>
+            <!-- 文本框 -->
+            <div class="layui-input-block">
+                <textarea class="layui-textarea" id="answer"
+                          style="display: none;font-size: 16px;line-height: 30px;"></textarea>
+            </div>
+            <!-- 文本框 -->
+        </div>
+        <!-- 参考答案 -->
+        <!-- 功能按钮 -->
+        <div class="layui-form-item text-center">
+            <button class="layui-btn float-left" type="button" onclick="preSub(parseInt($('#page').val()) - 1)">上一题
+            </button>
+            <button class="layui-btn" type="button" onclick="doRemark()">笔记</button>
+            <button class="layui-btn float-right" type="button" onclick="nextSub(parseInt($('#page').val()) + 1)">下一题
+            </button>
+        </div>
+        <!-- 功能按钮 -->
+    </form>
+</div>
+<div class="layui-footer text-center">
+    Copyright &copy;2018-2028 <a style="color: cornflowerblue" href="https://github.com/zhengvipin">https://github.com/zhengvipin</a>
+    All Rights Reserved.
+</div>
+<script src="js/jquery.2.1.4.min.js"></script>
+<script src="lib/layui/layui.js"></script>
+<script src="lib/layer/2.4/layer.js"></script>
+<script>
+    $(window).on('load', () => {
+        // 初始化数据
+        let url = window.location.href;
+        let index = url.indexOf("toPage");
+        if (index !== -1) { //1.由题表页面跳转查询
+            let start = url.indexOf("=");
+            let page = url.substring(start + 1);
+            queryQuestion(parseInt(page));
+        } else { // 2.直接数据库查询
+            $.ajax({
+                type: 'get',
+                url: '/question/record.action',
+                dataType: 'json',
+                success(data) {
+                    if (data.page == null || data.page === "") {
+                        data.page = 1;
+                    }
+                    queryQuestion(data.page);
+                }
+            });
+        }
+    });
+
+    // 详情展示
+    function showDescription(title, obj, pos, color) {
+        let index = layer.tips(title, obj, {tips: [pos, color], time: 60000});
+        obj.onmouseout = () => {
+            layer.close(index);
+        }
+    }
+
+    // 编辑参考答案
+    function editAnswer() {
+        let index = layer.confirm('确定要编辑参考答案么？', {
+            btn: ['<span style="color: #fff">当然</span>', '不了']
+        }, function () {
+            layer.close(index);
+            // 隐藏编辑、新增按钮
+            $('#edit,#add').hide();
+            // 显示保存、取消按钮
+            $('#save,#quit').show();
+            // 题干可编辑
+            $('#name').removeAttr('readonly');
+            // 显示编辑器工具栏
+            $('.layui-layedit-tool').show();
+            // 文本框可编辑 | 背景色为灰色 | 获得焦点
+            $("iframe[textarea='answer']").contents().find("body").prop("contenteditable", true).css({'backgroundColor': '#e9ecef'}).focus();
+        }, function () {
+            layer.msg('您的选择很明智！', {icon: 1, time: 800});
+        });
+    }
+
+    // -----------------------------------------------------------------
+    // 上一题
+    function preSub(page) {
+        if (page < 1) {
+            page = 1
+        }
+        queryQuestion(page);
+    }
+
+    // 下一题
+    function nextSub(page) {
+        let count = $('#count').text();
+        if (page > count) {
+            page = count;
+        }
+        queryQuestion(page);
+    }
+
+    // 跳转到某题
+    // 1.按下回车键跳转
+    $(document).keyup(function (event) {
+        if (event.keyCode == 13) {
+            toSub();
+        }
+    });
+
+    // 2.失去焦点跳转
+    function toSub() {
+        let count = $('#count').text();
+        let page = $('#id').val();
+        if (parseInt(page) > parseInt(count)) {
+            page = count;
+        } else if (page < 1) {
+            page = 1;
+        }
+        queryQuestion(page);
+    }
+
+    // -----------------------------------------------------------------
+    // 做笔记
+    function doRemark() {
+        layer.open({
+            title: ["笔记", 'background-color:red;color'],
+            type: 2,
+            area: ['660px', '450px'],
+            skin: 'layui-layer-rim',
+            content: ["remark.html", 'no']
+        });
+    }
+
+    // -----------------------------------------------------------------
+    // 查询题目
+    function queryQuestion(page) {
+        $.ajax({
+            type: 'get',
+            url: '/question/findByPage.action?page=' + page,
+            dataType: 'json',
+            success: (data) => {
+                if (data.count < page) {
+                    queryQuestion(1);
+                    return;
+                }
+                $("#count").html(data.count);
+                $.each(data.questions, (i, item) => {
+                    if (i + 1 === page) {
+                        $("#page").val(i + 1);
+                        $("#id").val(item.id);
+                        $("#name").val(item.name);
+                        $("#answer").html(item.answer);
+                        $("#remark").val(item.remark);
+                        $("#title").html(item.category.title);
+                        $("#description").val(item.category.description);
+
+                        layui.use('layedit', function () {
+                            let layedit = layui.layedit;
+
+                            // 构建一个自定义编辑器
+                            let index = layedit.build('answer', {
+                                tool: ['strong', 'italic', 'underline', 'del', '|', 'left', 'center', 'right', '|', 'link', 'face']
+                                , height: 340
+                            });
+                            // 编辑器保存数据操作
+                            $('#save').click(() => {
+                                let id = $('#id').val();
+                                let name = $('#name').val();
+                                let answer = layedit.getContent(index);
+
+                                $.ajax({
+                                    type: 'post',
+                                    url: '/question/answer.action',
+                                    data: {id: id, name: name, answer: answer},
+                                    dataType: 'json',
+                                    success: (data) => {
+                                        if (data == 200) {
+                                            layer.msg("保存成功!", {icon: 1, time: 1000});
+
+                                            setTimeout(() => {
+                                                location.replace(location.href);
+                                            }, 800)
+                                        }
+                                    }
+                                })
+                            });
+                            // 加载时隐藏菜单栏 | 文本框不可编辑
+                            $('.layui-layedit-tool').hide();
+                            $("iframe[textarea='answer']").contents().find("body").prop("contenteditable", false).focus();
+                        })
+
+                    }
+                });
+                //console.log(data);
+
+            }
+        })
+    }
+</script>
+</body>
+</html>

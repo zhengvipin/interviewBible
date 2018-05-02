@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="lib/h-ui/css/H-ui.min.css">
+    <link rel="stylesheet" href="lib/layui/css/layui.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+<body>
+<div class="layui-container cl">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>分类一览</legend>
+    </fieldset>
+
+    <form class="layui-form float-left border radius mt-50 mr-2 pt-4 pb-2 pl-1" style="width: 29%">
+        <input type="hidden" id="id" value="">
+        <h5 class="mb-4">新增 | 修改 类别</h5>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" for="title">类名：</label>
+                <div class="layui-input-inline">
+                    <input type="text" placeholder="请输入类名..." class="layui-input" id="title">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" for="description">描述：</label>
+                <div class="layui-input-inline">
+                    <textarea placeholder="请输入描述..." class="layui-textarea" style="height: 200px"
+                              id="description"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item text-center mt-2">
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <button type="button" class="layui-btn layui-btn-fluid" style="margin-bottom: 4px"
+                            onclick="saveCategory()">保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="layui-form float-left mt-40" style="width: 69%">
+        <table class="layui-table" id="table">
+            <colgroup>
+                <col width="50">
+                <col width="100">
+                <col width="400">
+                <col width="120">
+            </colgroup>
+
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>类名</th>
+                <th>描述</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="layui-footer text-center mt-2">
+    Copyright &copy;2018-2028 <a style="color: cornflowerblue" href="https://github.com/zhengvipin">https://github.com/zhengvipin</a>
+    All Rights Reserved.
+</div>
+<script src="js/jquery.2.1.4.min.js"></script>
+<script src="lib/layui/layui.js"></script>
+<script src="lib/layer/2.4/layer.js"></script>
+<script src="lib/datatables/js/jquery.dataTables.min.js"></script>
+<script>
+    $(window).on('load', () => {
+        queryCategory();
+    });
+
+    function queryCategory() {
+        $.ajax({
+            type: 'get',
+            url: '/category/findAll.action',
+            dataType: 'json',
+            success: (data) => {
+                console.log(data);
+                let tbody = $('tbody');
+                tbody.empty();
+                if (data.length === 0) {
+                    tbody.append(`<tr><th class="text-center c-red" colspan="3">查无数据！</th></tr>`);
+                    return;
+                }
+                let text = ``;
+                $.each(data, (i, item) => {
+                    text += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${item.title}</td>
+                        <td>${item.description}</td>
+                        <td>
+                            <button class="layui-btn layui-btn-normal layui-btn-radius layui-btn-xs"
+                            onclick="findById(${item.id})">修改</button>
+                            <button class="layui-btn layui-btn-danger layui-btn-radius layui-btn-xs"
+                                onclick="removeCategory(${item.id},${i + 1})">删除</button>
+                        </td>
+                    </tr>
+                    `;
+                });
+                tbody.append(text);
+
+                // 分页
+                $("#table").DataTable({
+                    pageLength: 5, // 首次加载的数据条数
+                    sDom: '<"#oDiv"<"clear">>t<"bottom"ip<"clear">>',
+                    language: {
+                        url: "lib/datatables/js/zh_CN.txt"
+                    },
+                    retrieve: true
+                });
+
+            }
+        })
+    }
+
+    function saveCategory() {
+        let id = $.trim($('#id').val());
+        let title = $.trim($('#title').val());
+        let description = $.trim($('#description').val());
+
+        if (title === "") {
+            layer.msg("请输入类名");
+            return;
+        }
+        if (description === "") {
+            layer.msg("请输入描述");
+            return;
+        }
+
+        $.ajax({
+            type: 'post',
+            url: '/category/save.action',
+            data: {id: id, title: title, description: description},
+            dataType: 'json',
+            success: () => {
+                let index = parent.layer.getFrameIndex(window.name);
+                layer.msg("保存成功!", {icon: 1, time: 1000});
+
+                setTimeout(() => {
+                    location.replace(location.href);
+                }, 800)
+            }
+        })
+    }
+
+    function findById(id) {
+        $.ajax({
+            type: 'get',
+            url: '/category/findById.action?id=' + id,
+            dataType: 'json',
+            success: (data) => {
+                $('#id').val(data.id);
+                $('#title').val(data.title);
+                $('#description').val(data.description);
+            }
+        })
+    }
+
+    function removeCategory(id, page) {
+        let index = layer.confirm('确认要删除类别：' + page + '么？', () => {
+            $.ajax({
+                type: 'get',
+                url: '/category/remove.action?id=' + id,
+                dataType: 'json',
+                success: (data) => {
+                    if (data === 400) {
+                        layer.msg("删除失败!", {icon: 2, time: 1000});
+
+                        setTimeout(() => {
+                            queryCategory();
+                        }, 800);
+
+                        return;
+                    }
+                    layer.msg("删除成功!", {icon: 1, time: 1000});
+
+                    setTimeout(() => {
+                        queryCategory();
+                    }, 800)
+                }
+            })
+        })
+    }
+</script>
+</body>
+</html>

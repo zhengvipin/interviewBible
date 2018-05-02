@@ -1,0 +1,37 @@
+@charset "utf-8";
+.loginHead {
+  bottom: 0px;
+  text-align: center;
+  color: #000;
+}
+
+.threed {
+  background: #EEE url(data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAHklEQVQImWNkYGBgYGD4//8/A5wF5SBYyAr+//8PAPOCFO0Q2zq7AAAAAElFTkSuQmCC) repeat;
+  text-shadow: 5px -5px black, 4px -4px white;
+  font-size: 27px;
+  font-weight: bold;
+  text-align: center;
+  display: block;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text
+}
+
+@media (max-width: 1300px) {
+  .loginHead {
+    bottom: 0px;
+    margin-right: 10px;
+    text-align: right;
+    color: #000;
+  }
+}
+
+@media (max-width: 767px) {
+  .loginHead {
+    bottom: 0px;
+    margin-right: 10px;
+    display: none;
+    text-align: right;
+    color: #000;
+  }
+}
+

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>面试宝典</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="lib/layui/css/layui.css">
+    <link rel="stylesheet" href="lib/hui-iconfont/1.0.8/iconfont.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- 隐藏表单 -->
+    <input type="hidden" id="description">
+    <!-- 元信息 -->
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>
+            <div class="layui-form">
+                <div class="layui-inline">
+                    <select id="categoryId">
+                        <option value="">请选择分类</option>
+                    </select>
+                </div>
+            </div>
+        </legend>
+    </fieldset>
+    <!-- 元信息 -->
+    <form class="layui-form layui-form-pane" id="form">
+        <!-- 题目 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label" for="name">题目</label>
+            <div class="layui-input-block">
+                <input type="text" class="layui-input font-weight-bold" placeholder="请输入问题..."
+                       style="overflow:hidden;white-space:nowrap;text-overflow: ellipsis;cursor: pointer;font-size: 16px"
+                       id="name"/>
+            </div>
+        </div>
+        <!-- 题目 -->
+        <!-- 答案 -->
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">参考答案</label>
+            <div class="layui-input-block">
+                <textarea class="layui-textarea" id="answer"
+                          style="display: none;font-size: 16px;line-height: 30px;"></textarea>
+            </div>
+        </div>
+        <!-- 答案 -->
+        <div class="layui-form-item text-center">
+            <button class="layui-btn" type="button" id="btnSave">提交</button>
+        </div>
+    </form>
+</div>
+<div class="layui-footer text-center">
+    Copyright &copy;2018-2028 <a style="color: cornflowerblue" href="https://github.com/zhengvipin">https://github.com/zhengvipin</a>
+    All Rights Reserved.
+</div>
+<script src="js/jquery.2.1.4.min.js"></script>
+<script src="lib/layui/layui.js"></script>
+<script src="lib/layer/2.4/layer.js"></script>
+<script>
+    $(window).on('load', () => {
+        $.ajax({
+            type: 'get',
+            url: '/category/findAll.action',
+            dataType: 'json',
+            success: (data) => {
+                let text = ``;
+                $.each(data, (i, item) => {
+                    text += `
+                        <option value="${item.id}">${item.title}</option>
+                   `;
+                });
+                $('#categoryId').append(text);
+                // 重新渲染表单
+                renderForm();
+            }
+        });
+
+        layui.use('layedit', function () {
+            let layedit = layui.layedit;
+
+            // 构建一个自定义编辑器
+            let index = layedit.build('answer', {
+                tool: ['strong', 'italic', 'underline', 'del', '|', 'left', 'center', 'right', '|', 'link', 'face']
+                , height: 300
+            });
+            // 编辑器保存数据操作
+            $('#btnSave').click(() => {
+                if ($('#categoryId').val() == "") {
+                    layer.msg("请选择分类");
+                    return;
+                }
+                if ($.trim($('#name').val()) == "") {
+                    layer.msg("请输入问题");
+                    return;
+                }
+                if (layedit.getContent(index) == "") {
+                    layer.msg("请输入答案");
+                    return;
+                }
+
+                let formData = {
+                    categoryId: $('#categoryId').val(),
+                    name: $('#name').val(),
+                    answer: layedit.getContent(index)
+                };
+
+                //console.log(formData);
+                $.ajax({
+                    type: 'post',
+                    url: '/question/add.action',
+                    data: formData,
+                    dataType: 'json',
+                    success: (data) => {
+                        if (data == 200) {
+                            let index = parent.layer.getFrameIndex(window.name);
+                            layer.msg("保存成功!", {icon: 1, time: 1000});
+
+                            setTimeout(() => {
+                                location.replace(location.href);
+                            }, 800)
+                        }
+                    }
+                })
+            })
+        });
+    });
+
+    // 渲染表单脚本
+    function renderForm() {
+        layui.use('form', function () {
+            let form = layui.form;
+            form.render();
+        });
+    }
+</script>
+</body>
+</html>

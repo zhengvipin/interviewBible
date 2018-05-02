@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登录界面</title>
+    <link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="lib/layui/css/layui.css">
+    <link rel="stylesheet" href="lib/h-ui/css/H-ui.min.css"><!--hui前台样式-->
+    <link rel="stylesheet" href="lib/h-ui.admin/css/H-ui.admin.css"><!--hui后台样式-->
+    <link rel="stylesheet" href="lib/h-ui.admin/css/H-ui.login.css"><!--hui后台logo样式-->
+    <link rel="stylesheet" href="lib/hui-iconfont/1.0.8/iconfont.css"><!--hui图标字体样式-->
+    <link rel="stylesheet" href="lib/h-ui.admin/skin/default/skin.css" id="skin"><!--hui皮肤样式-->
+</head>
+<body>
+<div class="header"></div>
+<div class="loginWraper">
+    <div id="loginform" class="loginBox">
+        <form class="form form-horizontal">
+            <div class="row cl">
+                <label class="form-label col-xs-3"><i class="Hui-iconfont">&#xe602;</i></label>
+                <div class="formControls col-xs-8">
+                    <input id="username" name="username" type="text" placeholder="账号" class="input-text size-L">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-3"><i class="Hui-iconfont">&#xe60e;</i></label>
+                <div class="formControls col-xs-8">
+                    <input id="password" name="password" type="password" placeholder="密码" class="input-text size-L">
+                </div>
+            </div>
+            <!--
+            <div class="row cl">
+                <label for="role" class="form-label col-xs-3"><i class="Hui-iconfont">&#xe611;</i></label>
+                <div class="formControls col-xs-8">
+                    <span class="select-box;" style="background: #f0efeb;border: none;">
+                          <select class="select" size="1" id="role"
+                                  style="height: 41px;width: 360px">
+                            <option value="1">操作员</option>
+                            <option value="1">管理员</option>
+                          </select>
+                    </span>
+                </div>
+            </div>
+            -->
+            <div class="row cl">
+                <div class="formControls col-xs-8 col-xs-offset-2 text-c">
+                    <input type="button" class="btn btn-success radius size-L"
+                           value="&nbsp;登&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;" id="btnLogin">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="reset" class="btn btn-default radius size-L"
+                           value="&nbsp;重&nbsp;&nbsp;&nbsp;&nbsp;置&nbsp;">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="footer text-center">
+    Copyright &copy;2018-2028 <a style="color: cornflowerblue" href="https://github.com/zhengvipin">https://github.com/zhengvipin</a>
+    All Rights Reserved.
+</div>
+
+<script src="js/jquery.2.1.4.min.js"></script>
+<script src="lib/layer/2.4/layer.js"></script>
+<script>
+    $('#btnLogin').click(() => {
+        let username = $('#username').val();
+        let password = $('#password').val();
+
+        if ($.trim(username) === "") {
+            layer.msg("请输入用户名");
+            return;
+        }
+        if ($.trim(password) === "") {
+            layer.msg("请输入密码");
+            return;
+        }
+
+        $.ajax({
+            type: "post",
+            url: '/auth/login.action',
+            data: {username: username, password: password},
+            dataType: 'json',
+            success: function (data) {
+                if (data.code === 400) {
+                    let index = layer.msg(data.message, {icon: 2});
+                    setTimeout(() => {
+                        layer.close(index);
+                    }, 800);
+                    return;
+                }
+                let index = layer.msg(data.message, {icon: 1});
+                setTimeout(() => {
+                    layer.close(index);
+                    location.href = "main.html";
+                }, 800);
+            }
+        });
+
+    })
+</script>
+</body>
+</html>

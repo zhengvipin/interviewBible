@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>面试宝典</title>
+    <link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon"><!--域名图标-->
+    <link rel="stylesheet" href="lib/h-ui/css/H-ui.min.css"><!--hui前台样式-->
+    <link rel="stylesheet" href="lib/h-ui.admin/css/H-ui.admin.css"><!--hui后台样式-->
+    <link rel="stylesheet" href="lib/hui-iconfont/1.0.8/iconfont.css"><!--hui图标字体样式-->
+    <link rel="stylesheet" href="lib/h-ui.admin/skin/default/skin.css" id="skin"><!--hui皮肤样式-->
+    <link rel="stylesheet" href="lib/h-ui.admin/css/style.css"><!--自己的样式-->
+</head>
+<body>
+
+<!--头部-->
+<header class="navbar-wrapper">
+    <div class="navbar navbar-black navbar-fixed-top ">
+        <div class="container-fluid cl">
+            <!--logo-->
+            <a class="logo navbar-logo f-l mr-10 hidden-xs">学习管理系统</a>
+            <span class="logo navbar-slogan f-l mr-10 hidden-xs">v1.0&nbsp;&nbsp;
+                <span id="username"></span>&nbsp;&nbsp;
+                上次登录时间: <span id="loginDate"></span>
+		    </span>
+            <!--logo-->
+            <!--导航栏-->
+            <nav id="Hui-userbar" class="nav navbar-nav navbar-userbar hidden-xs">
+                <ul class="cl">
+                    <li>
+                        <span id="state"></span>
+                    </li>
+                    <li>超级管理员</li>
+                    <!--个人账户-->
+                    <li class="dropDown dropDown_hover">
+                        <a href="javascript:;" class="dropDown_A">admin<i class="Hui-iconfont">&#xe6d5;</i></a>
+                        <ul class="dropDown-menu menu radius box-shadow">
+                            <!--
+                            <li><a href="javascript:;">个人信息</a></li>
+                            <li><a href="javascript:;">切换账户</a></li>
+                            -->
+                            <li><a href="javascript:;" onclick="logout()">退出</a></li>
+                        </ul>
+                    </li>
+                    <!--个人账户-->
+                    <!--消息提示-->
+                    <!--
+                    <li id="Hui-msg">
+                        <a href="javascript:;" title="消息">
+                            <span class="badge badge-danger">7</span>
+                            <i class="Hui-iconfont" style="font-size:18px">&#xe68a;</i>
+                        </a>
+                    </li>
+                    -->
+                    <!--消息提示-->
+                    <!--皮肤更换-->
+                    <li id="Hui-skin" class="dropDown dropDown_hover right">
+                        <a href="javascript:;" class="dropDown_A" title="换肤">
+                            <i class="Hui-iconfont" style="font-size:18px">&#xe62a;</i>
+                        </a>
+                        <ul class="dropDown-menu menu radius box-shadow">
+                            <li><a href="javascript:;" data-val="default" title="默认（黑色）">默认（黑色）</a></li>
+                            <li><a href="javascript:;" data-val="blue" title="蓝色">蓝色</a></li>
+                            <li><a href="javascript:;" data-val="green" title="绿色">绿色</a></li>
+                            <li><a href="javascript:;" data-val="red" title="红色">红色</a></li>
+                            <li><a href="javascript:;" data-val="yellow" title="黄色">黄色</a></li>
+                            <li><a href="javascript:;" data-val="orange" title="橙色">橙色</a></li>
+                        </ul>
+                    </li>
+                    <!--皮肤更换-->
+                </ul>
+            </nav>
+            <!--导航栏-->
+        </div>
+    </div>
+</header>
+<!--头部-->
+
+<!--侧边栏-->
+<aside class="Hui-aside">
+    <div class="menu_dropdown bk_2">
+        <!--学习管理-->
+        <dl id="menu-toy-type">
+            <dt>
+                <i class="Hui-iconfont">&#xe72b;</i>&nbsp;学习管理
+                <i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li>
+                        <a data-href="list.html" data-title="高屋建瓴" href="javascript:void(0);">高屋建瓴</a>
+                    </li>
+                    <li>
+                        <a data-href="question.html" data-title="循序渐进" href="javascript:void(0);">循序渐进</a>
+                    </li>
+                    <li>
+                        <a data-href="category.html" data-title="琳琅满目" href="javascript:void(0);">琳琅满目</a>
+                    </li>
+                    <li>
+                        <a data-href="add.html" data-title="题海无涯" href="javascript:void(0);">题海无涯</a>
+                    </li>
+                </ul>
+            </dd>
+        </dl>
+        <!------------------------>
+    </div>
+</aside>
+<!------------------------>
+
+<!--伸缩框-->
+<div class="dislpayArrow ">
+    <a class="pngfix" href="javascript:void(0);"
+       onClick="displaynavbar(this)"></a>
+</div>
+<!------------------------>
+
+<section class="Hui-article-box">
+    <div id="Hui-tabNav" class="Hui-tabNav hidden-xs">
+        <div class="Hui-tabNav-wp">
+            <ul id="min_title_list" class="acrossTab cl">
+                <li class="active">
+                    <span title="我的桌面" data-href="#">我的桌面</span>
+                    <em></em>
+                </li>
+            </ul>
+        </div>
+        <div class="Hui-tabNav-more btn-group">
+            <a id="js-tabNav-prev" class="btn radius btn-default size-S" href="javascript:;">
+                <i class="Hui-iconfont">&#xe6d4;</i>
+            </a>
+            <a id="js-tabNav-next" class="btn radius btn-default size-S" href="javascript:;">
+                <i class="Hui-iconfont">&#xe6d7;</i>
+            </a>
+        </div>
+    </div>
+
+    <div id="iframe_box" class="Hui-article">
+        <div class="show_iframe">
+            <div style="display:none" class="loading"></div>
+            <iframe scrolling="yes" frameborder="0" src="list.html"></iframe>
+        </div>
+    </div>
+</section>
+
+<div class="contextMenu" id="Huiadminmenu">
+    <ul>
+        <li id="closethis">关闭当前</li>
+        <li id="closeall">关闭全部</li>
+    </ul>
+</div>
+<div class="layui-footer text-center">
+    Copyright &copy;2018-2028 <a style="color: cornflowerblue" href="https://github.com/zhengvipin">https://github.com/zhengvipin</a>
+    All Rights Reserved.
+</div>
+<script src="js/jquery.2.1.4.min.js"></script>
+<script src="lib/h-ui/js/H-ui.min.js"></script>
+<script src="lib/h-ui.admin/js/H-ui.admin.js"></script>
+<script src="lib/layer/2.4/layer.js"></script><!--layer弹出框js-->
+<script src="js/jquery.contextmenu.r2.js"></script><!--菜单js-->
+<script>
+    $(window).on('load', () => {
+        $.ajax({
+            type: 'get',
+            url: '/auth/getSession.action',
+            dataType: 'json',
+            success: (data) => {
+                if (data) {
+                    console.log(data);
+                    $('#username').text(data.username);
+                    $('#loginDate').text(data.loginDate);
+                } else {
+                    location.href = "index.html";
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrows) {
+                console.log("Spring exception.");
+                layer.confirm("非授权用户,请先登录!", () => {
+                    location.href = "index.html"
+                })
+            }
+        })
+    });
+
+    function logout() {
+        layer.confirm("是否确认退出?", () => {
+            $.ajax({
+                type: 'get',
+                url: '/auth/logout.action',
+                dataType: 'json',
+                success: () => {
+                    location.href = "index.html";
+                }
+            })
+        });
+
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+    <!-- spring图标以上的日志 -->
+    <logger name="org.springframework" level="ERROR"/>
+    <!-- spring图标以下的日志
+    <logger name="root" level="info"/>
+    -->
+</configuration>

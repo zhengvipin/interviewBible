@@ -1,0 +1,22 @@
+server:
+  port: 8086
+  servlet:
+    context-path:
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/interview?useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+  output:
+    ansi:
+      enabled: always
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+logging:
+  level:
+    org.springframework.security: info
